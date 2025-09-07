@@ -4,34 +4,32 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/NaveenRagavi/TrailRepoPractice.git'
+                git url: 'https://github.com/NaveenRagavi/TrailRepoPractice.git', branch: 'main'
             }
         }
 
         stage('Set up Python') {
             steps {
-                sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install --upgrade pip
-                    pip install -r Filpkart/requirements.txt
+                bat '''
+                python -m venv venv
+                call venv\\Scripts\\activate
+                pip install -r requirements.txt
                 '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    . venv/bin/activate
-                    pytest Filpkart/tests/ --maxfail=1 --disable-warnings -q
+                bat '''
+                call venv\\Scripts\\activate
+                pytest --junitxml=report.xml
                 '''
             }
-        }
-    }
-
-    post {
-        always {
-            junit '**/test-results/*.xml'  // if you later add XML reporting
+            post {
+                always {
+                    junit 'report.xml'
+                }
+            }
         }
     }
 }
